@@ -1,0 +1,90 @@
+/* Sidebar.css */
+.sidebar {
+    width: 250px;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 1rem;
+    position: fixed;
+    height: 100%;
+  }
+  
+  .sidebar-header {
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 1rem;
+  }
+  
+  .sidebar-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  
+  .sidebar-menu {
+    margin-top: 1rem;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border-radius: 10px;
+  }
+  
+  .sidebar-item:hover {
+    background: #e5e7eb;
+  }
+  
+  .logout-btn {
+    margin-top: 4rem;
+    color: #ef4444;
+  }
+  
+  .logout-btn:hover {
+    background: #fee2e2;
+  }
+
+  .language-dropdown {
+    margin-left: 10px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Hide the Google Translate top bar */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important; /* Prevents page from shifting */
+}
+
+/* Hide Google Translate pop-up logo */
+.goog-logo-link, .goog-te-gadget span, .goog-te-balloon-frame {
+  display: none !important;
+}
+
+/* Remove second dropdown */
+.goog-te-gadget {
+  display: inline-block !important;
+}
+
+/* Style dropdown */
+#google_translate_element select {
+  background: #222;
+  color: white;
+  border: 1px solid white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -1,0 +1,50 @@
+/* Instructions.css */
+.instructions-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+  }
+  
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .card-content {
+    padding: 1.5rem;
+  }
+  
+  .instruction-item {
+    margin-bottom: 1rem;
+  }
+  
+  .instruction-item h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .step-number {
+    width: 1.5rem;
+    height: 1.5rem;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .instruction-item p {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }

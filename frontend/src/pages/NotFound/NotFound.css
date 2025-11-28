@@ -1,0 +1,35 @@
+/* NotFound.css */
+.not-found-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6; /* Equivalent to bg-gray-100 */
+  }
+  
+  .not-found-content {
+    text-align: center;
+  }
+  
+  .not-found-title {
+    font-size: 2.25rem; /* Equivalent to text-4xl */
+    font-weight: 700; /* Equivalent to font-bold */
+    margin-bottom: 1rem; /* Equivalent to mb-4 */
+    color: #1f2937; /* Dark gray for contrast */
+  }
+  
+  .not-found-text {
+    font-size: 1.25rem; /* Equivalent to text-xl */
+    color: #6b7280; /* Equivalent to text-gray-600 */
+    margin-bottom: 1rem; /* Equivalent to mb-4 */
+  }
+  
+  .not-found-link {
+    color: #3b82f6; /* Equivalent to text-blue-500 */
+    text-decoration: underline;
+    transition: color 0.3s ease;
+  }
+  
+  .not-found-link:hover {
+    color: #1d4ed8; /* Equivalent to hover:text-blue-700 */
+  }

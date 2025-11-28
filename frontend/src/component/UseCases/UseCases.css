@@ -1,0 +1,120 @@
+/* UseCases.css */
+.use-cases {
+    padding: 5rem 0;
+    background: rgba(243, 244, 246, 0.3);
+  }
+  
+  .section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .section-header {
+    text-align: center;
+    max-width: 48rem;
+    margin: 0 auto 4rem;
+  }
+  
+  .section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .section-subtitle {
+    color: #6b7280;
+    font-size: 1.125rem;
+  }
+  
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  
+  .use-case-card {
+    border: 1px solid rgba(209, 213, 219, 0.7);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    animation: scaleIn 0.5s ease backwards;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  
+  .use-case-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .use-case-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    background: rgba(37, 99, 235, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .use-case-icon .icon {
+    color: #2563eb;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .use-case-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .use-case-text {
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  
+  .use-case-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .use-case-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .use-case-list .check-icon {
+    color: #2563eb;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+  
+  .use-case-list li span {
+    font-size: 0.875rem;
+  }
+  
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  @media (min-width: 768px) {
+    .section-title {
+      font-size: 2.25rem;
+    }
+    
+    .use-cases-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }

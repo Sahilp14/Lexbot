@@ -1,0 +1,38 @@
+/* Dashboard.css */
+.dashboard {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .main-content-dash {
+    margin-left: 250px;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .dashboard-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #2563eb;
+  }
+  
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .content-grid {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
