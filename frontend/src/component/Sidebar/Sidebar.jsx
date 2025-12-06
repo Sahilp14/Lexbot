@@ -88,7 +88,7 @@ const Sidebar = () => {
 
        {/* const location = useLocation(); // Add this near top inside Sidebar() */}
 
-<div className="sidebar-item">
+{/* <div className="sidebar-item">
   <Globe size={20} />
   <Link
     to="/upgradePlan"
@@ -96,7 +96,7 @@ const Sidebar = () => {
   >
     Upgrade Plan
   </Link>
-</div>
+</div> */}
 
         <div className="sidebar-item">
           <Globe size={20} />

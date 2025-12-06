@@ -9,15 +9,14 @@ import NotFound from "./pages/NotFound/NotFound";
 import Dashboard from './pages/Dashboard/Dashboard';
 import { ToastContainer } from "react-toastify";
 import DocumentViewer from './pages/DocumentViewer/DocumentViewer';
-import { useTranslation } from "react-i18next";
 import ProtectedRoute from "./component/ProtectedRoute";
 import Pricing from "./component/Pricing/Pricing";
 import About from "./component/About/About";
 import Contact from './component/Contact/Contact';
-import UpgradePlan from "./component/UpgradePlan/UpgradePlan";
+// import UpgradePlan from "./component/UpgradePlan/UpgradePlan";
 import Settings from './component/Setting/Setting';
 import "./i18n"; // Import i18n config
-import Navbar from './component/Navbar/Navbar';
+
 
 
 const queryClient = new QueryClient();
@@ -36,7 +35,7 @@ const App = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/pricing" element={<Pricing />} />
     <Route path="/about" element={<About />} />
-     <Route path="/upgradePlan" element={<UpgradePlan />} />
+     {/* <Route path="/upgradePlan" element={<UpgradePlan />} /> */}
     <Route path="/contact" element={<Contact />} />
     <Route path="/notFound" element={<NotFound />} />
     <Route path="/setting" element={<Settings />} />
