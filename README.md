@@ -1,4 +1,4 @@
-# LegiFy: AI-Powered Legal Document Summarization
+# LexBot: AI-Powered Legal Document Summarization
 
 ## Overview
 This project leverages advanced AI models to **summarize, simplify, and analyze legal documents** efficiently. It integrates **Named Entity Recognition (NER)**, **extractive summarization**, and **abstractive summarization** to ensure high-quality legal text processing.
