@@ -6,6 +6,7 @@ import nltk
 from transformers import AutoTokenizer, AutoModelForPreTraining, pipeline
 from nltk.tokenize import sent_tokenize
 import requests
+from dotenv import load_dotenv
 
 # Download required NLTK data
 try:
@@ -246,7 +247,9 @@ def summarize_text(text,level):
     print(simplified)
     print("-" * 50)
 
-    API_KEY = ("AIzaSyA6g4B94T4p4rGBFaWe1FpgiUJfPmwfWw8")
+    # loading api key from .env file
+    load_dotenv()
+    API_KEY = os.getenv("API")
     GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={API_KEY}"
 
     prompt = ""
