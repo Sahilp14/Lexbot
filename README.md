@@ -35,7 +35,7 @@ This project leverages advanced AI models to **summarize, simplify, and analyze 
 ### 7️⃣ **Multilingual Support**
 - Extending summarization to **regional Indian languages**.
 - Ensuring accessibility for **non-English legal documents**.
-
+  
 ## Installation & Usage
 ```bash
 # Clone the repository
