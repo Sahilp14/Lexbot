@@ -217,8 +217,10 @@ def cleanup_files(request):
         user_file.delete()  
 
     return JsonResponse({"message": "Files cleaned up successfully!"}, status=200)
-
-API_KEY = "AIzaSyA6g4B94T4p4rGBFaWe1FpgiUJfPmwfWw8"
+import os
+from dotenv import load_dotenv
+load_dotenv()
+API_KEY = os.getenv("API")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
 
 @api_view(["POST"])
