@@ -52,8 +52,8 @@ def protected_view(request):
 @api_view(['POST'])
 def create_user(request):
     if request.method == 'POST':
-        data = request.data;
-        print(data);
+        data = request.data
+        print(data)
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
