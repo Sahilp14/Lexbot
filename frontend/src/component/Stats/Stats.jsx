@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FileCheck, Clock, Brain } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 import './Stats.css';
 import axios from 'axios';
 
@@ -35,15 +36,17 @@ const Stats = () => {
     fetchUserDocs();
   }, []);
 
+  const { t } = useTranslation();
+
   // Calculate stats based on fetched data
   const numDocuments = fileHistory.length; // Number of documents processed
   const timeSaved = (numDocuments * 0.67).toFixed(1); // Random calc: 0.67 hours saved per document
   const aiAnalyses = numDocuments * 2 + Math.floor(Math.random() * 10); // Random calc: 2 analyses per doc + random extra
 
   const statsData = [
-    { title: "Documents Processed", value: numDocuments, icon: FileCheck, color: "#3b82f6" },
-    { title: "Time Saved", value: `${timeSaved} hrs`, icon: Clock, color: "#22c55e" },
-    { title: "AI Analyses", value: aiAnalyses, icon: Brain, color: "#9333ea" },
+    { title: t("docs_processed"), value: numDocuments, icon: FileCheck, color: "#3b82f6" },
+    { title: t("time_saved"), value: `${timeSaved} ${t("hrs")}`, icon: Clock, color: "#22c55e" },
+    { title: t("ai_analyses"), value: aiAnalyses, icon: Brain, color: "#9333ea" },
   ];
 
   return (

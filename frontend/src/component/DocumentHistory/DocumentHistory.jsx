@@ -1,6 +1,7 @@
 // DocumentHistory.jsx
 import React, { useEffect, useState } from 'react';
 import { History, Rss } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './DocumentHistory.css';
 import axios from 'axios';
 
@@ -35,26 +36,28 @@ const DocumentHistory = () => {
     fetchUserDocs();
   }, []);
 
+  const { t } = useTranslation();
+
   return (
     <div className="history-card">
       <div className="card-header">
         <h2 className="card-title">
           <History size={20} />
-          Document History
+          {t("doc_history")}
         </h2>
         <p className="card-description">
-          Previously processed documents and their summaries
+          {t("doc_history_desc")}
         </p>
       </div>
       <div className="card-content">
         <table className="history-table">
           <thead>
             <tr>
-              <th>Sr no.</th>
-              <th>Document Name</th>
-              <th>Date Processed</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("sr_no")}</th>
+              <th>{t("doc_name")}</th>
+              <th>{t("date_processed")}</th>
+              <th>{t("status")}</th>
+              <th>{t("actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +70,7 @@ const DocumentHistory = () => {
                   <span className="status">{file.status}</span>
                 </td>
                 <td>
-                  <a href={`http://localhost:8000${file.file_url}`} target='_blank' className="view-btn">View</a>
+                  <a href={`http://localhost:8000${file.file_url}`} target='_blank' className="view-btn">{t("view")}</a>
                 </td>
               </tr>
             ))}
@@ -75,7 +78,7 @@ const DocumentHistory = () => {
         </table>
       </div>
       <div className="card-footer">
-        <button className="load-more-btn">Load More</button>
+        <button className="load-more-btn">{t("load_more")}</button>
       </div>
     </div>
   );

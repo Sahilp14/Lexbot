@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 import json
 from django.core.files.storage import default_storage
@@ -10,63 +9,60 @@ from django.conf import settings
 import os
 from django.views.decorators.csrf import csrf_exempt
 import requests
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from .utilities.text_extractor import extract_text
+from datetime import datetime
+from dotenv import load_dotenv
+
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
-from datetime import  datetime
-from .models import UserFile
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate, login, logout
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .utilities.text_summarizer import  summarize_text
-from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
-from dotenv import load_dotenv
-from .utilities.ncr import extract_legal_entities
+from rest_framework.authtoken.models import Token
+
+from django.contrib.auth import authenticate, login
+
+from .models import UserFile, PasswordResetOTP
+from .utilities.text_extractor import extract_text
 from .utilities.text_summarizer import summarize_text
+from .utilities.ncr import extract_legal_entities
+
 load_dotenv()
 
-# Create your views here.
+# ================= USER SERIALIZER =================
 
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username" , "email"]
+        fields = ["id", "username", "email"]
 
 
-
+# ================= AUTH APIs =================
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def protected_view(request):
-    """Example protected API endpoint."""
     return Response({"message": "This is a protected view!"})
 
-# Create User
+
 @csrf_exempt
 @api_view(['POST'])
 def create_user(request):
-    if request.method == 'POST':
-        data = request.data
-        print(data)
-        user = User.objects.create_user(
-            username=data['username'],
-            email=data['email'],
-            password=data['password']
-        )
-        return JsonResponse({'message': 'User created', 'id': user.id})
+    data = request.data
+    user = User.objects.create_user(
+        username=data['username'],
+        email=data['email'],
+        password=data['password']
+    )
+    return JsonResponse({'message': 'User created', 'id': user.id})
 
-# Get All Users
+
 def get_users(request):
     users = User.objects.all().values('id', 'username', 'email', 'is_staff', 'is_active', 'date_joined')
     return JsonResponse(list(users), safe=False)
 
-# Get Single User by ID
+
 def get_user(request, id):
     user = get_object_or_404(User, id=id)
     return JsonResponse({
@@ -78,7 +74,7 @@ def get_user(request, id):
         'date_joined': user.date_joined
     })
 
-# Update User
+
 def update_user(request, id):
     if request.method == 'PUT':
         data = json.loads(request.body)
@@ -86,11 +82,11 @@ def update_user(request, id):
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
         if 'password' in data:
-            user.set_password(data['password'])  # Hashing the new password
+            user.set_password(data['password'])
         user.save()
         return JsonResponse({'message': 'User updated'})
 
-# Delete User
+
 def delete_user(request, id):
     if request.method == 'DELETE':
         user = get_object_or_404(User, id=id)
@@ -98,62 +94,48 @@ def delete_user(request, id):
         return JsonResponse({'message': 'User deleted'})
 
 
-
 @csrf_exempt
 @api_view(['POST'])
 def user_login(request):
-    """API endpoint for user login."""
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(request, username=username, password=password)
-    if user is not None:
+
+    if user:
         login(request, user)
         token, _ = Token.objects.get_or_create(user=user)
         user_data = UserSerializer(user).data
-        return Response({"token": token.key ,"user":user_data})
-    else:
-        return Response({"error": "Invalid credentials"}, status=400)
+        return Response({"token": token.key, "user": user_data})
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  # Ensure user is authenticated
-# def user_logout(request):
-#     """API endpoint for user logout."""
-#     logout(request)
-#     return Response({"message": "Logged out successfully!"})
+    return Response({"error": "Invalid credentials"}, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def user_logout(request):
-    print(request)
-    """API endpoint for user logout."""
     try:
-        # Delete the token so it's no longer valid
         request.user.auth_token.delete()
     except:
         pass
-    
     return Response({"message": "Logged out successfully!"})
 
 
+# ================= FILE UPLOAD =================
+
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Ensure user is authenticated
-@parser_classes([MultiPartParser])  # Allow file uploads
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser])
 def file_upload(request):
-    print(request.FILES)
     if 'file' not in request.FILES:
         return JsonResponse({"error": "No file uploaded"}, status=400)
 
     uploaded_file = request.FILES['file']
-    
-    # Generate a unique file name: userid_timestamp_filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     unique_file_name = f"{request.user.id}_{timestamp}_{uploaded_file.name}"
     file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', unique_file_name)
 
-    # Save the file
-    path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
+    default_storage.save(file_path, ContentFile(uploaded_file.read()))
 
-    # Save file metadata in the database
     user_file = UserFile.objects.create(
         user=request.user,
         file_name=unique_file_name,
@@ -162,159 +144,223 @@ def file_upload(request):
 
     try:
         extracted_text = extract_text(file_path)
-        legal_res = summarize_text(extracted_text,2)
+        
+        # Save the extracted text in the database
+        user_file.extracted_text = extracted_text
+        user_file.save()
 
-        response_data = {
-            "message": "File uploaded and text extracted successfully!",
+        summarized = summarize_text(extracted_text, 2)
+
+        return JsonResponse({
+            "message": "File uploaded successfully",
             "file_url": f"{settings.MEDIA_URL}uploads/{unique_file_name}",
-            "summarized_text": legal_res,
+            "summarized_text": summarized,
             "extracted_text": extracted_text,
-            "file_id": user_file.id  # Return the file ID for future reference
-        }
-        return JsonResponse(response_data, status=201)
+            "file_id": user_file.id
+        }, status=201)
+
     except Exception as e:
-        return JsonResponse({"error": f"Error extracting text: {str(e)}"}, status=500)
-    
-@api_view(['GET'])  # Use Django REST Framework
-@permission_classes([IsAuthenticated])  # Ensure user is authenticated
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def file_history(request):
-    """Fetch the file history for the logged-in user."""
-    
     user_files = UserFile.objects.filter(user=request.user).order_by('-uploaded_at')
 
-    file_history = [
-        {
-            "id": file.id,
-            "file_name": file.file_name,
-            "file_url": f"{settings.MEDIA_URL}{file.file_path}",
-            "uploaded_at": file.uploaded_at.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        for file in user_files
-    ]
-    
-    return JsonResponse({"file_history": file_history}, status=200)
+    data = [{
+        "id": f.id,
+        "file_name": f.file_name,
+        "file_url": f"{settings.MEDIA_URL}uploads/{f.file_name}",
+        "uploaded_at": f.uploaded_at.strftime("%Y-%m-%d %H:%M:%S")
+    } for f in user_files]
+
+    return JsonResponse({"file_history": data})
 
 
-@csrf_exempt
-@api_view(['DELETE'])  
-@permission_classes([IsAuthenticated])  
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def file_details(request, file_id):
+    try:
+        user_file = get_object_or_404(UserFile, id=file_id, user=request.user)
+
+        # Extract on-the-fly if missing (for legacy entries)
+        if not user_file.extracted_text:
+            if os.path.exists(user_file.file_path):
+                user_file.extracted_text = extract_text(user_file.file_path)
+                user_file.save()
+
+        summarized = ""
+        if user_file.extracted_text:
+            try:
+                summarized = summarize_text(user_file.extracted_text, 2)
+            except Exception as e:
+                print(f"Error summarizing file {file_id}: {e}")
+
+        return JsonResponse({
+            "id": user_file.id,
+            "file_name": user_file.file_name,
+            "file_url": f"{settings.MEDIA_URL}uploads/{user_file.file_name}",
+            "uploaded_at": user_file.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "extracted_text": user_file.extracted_text or "",
+            "summarized_text": summarized
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def cleanup_files(request):
-    """Delete all files and database entries for the logged-in user."""
-    
-    # Debug: Check user authentication
-    print(f"Request User: {request.user}")  
-    print(f"Is Authenticated: {request.user.is_authenticated}")  
-
-    if not request.user or request.user.is_anonymous:
-        return JsonResponse({"error": "Authentication required!"}, status=401)
-
     user_files = UserFile.objects.filter(user=request.user)
-    
-    for user_file in user_files:
-        file_path = user_file.file_path  
-        if file_path and os.path.exists(file_path):
-            os.remove(file_path)  
-        user_file.delete()  
 
-    return JsonResponse({"message": "Files cleaned up successfully!"}, status=200)
-import os
-from dotenv import load_dotenv
-load_dotenv()
-API_KEY = os.getenv("API")
+    for f in user_files:
+        if os.path.exists(f.file_path):
+            os.remove(f.file_path)
+        f.delete()
+
+    return JsonResponse({"message": "Files cleaned successfully"})
+
+
+# ================= GEMINI CHAT =================
+
+API_KEY = "YOUR_API_KEY"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+
 
 @api_view(["POST"])
 def chat(request):
+    prompt = request.data.get("prompt")
+
+    if not prompt:
+        return Response({"error": "Prompt required"}, status=400)
+
+    response = requests.post(GEMINI_URL, json={
+        "contents": [{"parts": [{"text": prompt}]}]
+    })
+
+    data = response.json()
+
     try:
-        prompt = request.data.get("prompt")
-        if not prompt:
-            return Response({"error": "Prompt is required"}, status=400)
-
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "contents": [{"parts": [{"text": prompt + " in a concise manner in 3 to 4 lines and simple for understanding"}]}]
-        }
-
-        response = requests.post(GEMINI_URL, headers=headers, json=data)
-
-        response_data = response.json()
-        
-        print("Gemini API Response:", response_data)  # ✅ Debugging
-
-        # ✅ Ensure response_data contains 'candidates' instead of 'contents'
-        if "candidates" in response_data and len(response_data["candidates"]) > 0:
-            candidate = response_data["candidates"][0]
-
-            if "content" in candidate and "parts" in candidate["content"] and len(candidate["content"]["parts"]) > 0:
-                response_text = candidate["content"]["parts"][0]["text"]
-                return Response({"response": response_text}, status=200)
-
-        return Response({"error": "Invalid API response structure"}, status=500)
-
-    except Exception as e:
-        print("Exception:", str(e))  # ✅ Print error message
-        print(traceback.format_exc())  # ✅ Print full error traceback
-        return Response({"error": str(e)}, status=500)
-    
+        text = data["candidates"][0]["content"]["parts"][0]["text"]
+        return Response({"response": text})
+    except:
+        return Response({"error": "Invalid response"}, status=500)
 
 
-@csrf_exempt
-@api_view(['POST'])  
-@permission_classes([IsAuthenticated])  
+# ================= NER =================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getners(request):
-    # Extract NERs from the input text
     ners = extract_legal_entities(request.data.get('text'))
+
+    if not ners:
+        return Response({"error": "No entities found"}, status=400)
+
+    return Response({"entities": ners})
+
+
+# ================= SETTINGS API (NEW) =================
+
+user_settings_data = {}
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def user_settings(request):
+    user_id = request.user.id
+
+    if request.method == 'GET':
+        return Response(user_settings_data.get(user_id, {
+            "theme": "light",
+            "language": "english",
+            "notifications": True,
+            "autoSave": True
+        }))
+
+    elif request.method == 'POST':
+        user_settings_data[user_id] = request.data
+        return Response({"message": "Settings saved successfully"})
+
+
+# ================= PASSWORD RESET APIs =================
+
+@api_view(['POST'])
+def request_password_reset_otp(request):
+    email = request.data.get('email')
+    if not email:
+        return Response({"error": "Email is required"}, status=400)
+    
+    user = User.objects.filter(email=email).first()
+    if not user:
+        # Secure response: return success but don't leak account existence
+        return Response({"message": "If a user with this email exists, a 6-digit OTP has been sent."})
+    
+    import random
+    otp = f"{random.randint(100000, 999999)}"
+    
+    # Save the OTP in the database
+    PasswordResetOTP.objects.create(user=user, otp=otp)
+    
+    # Send the email
+    from django.core.mail import send_mail
+    from django.conf import settings as django_settings
+    
+    subject = "Your LexBot Password Reset OTP"
+    message = f"Hello {user.username},\n\nYour password reset verification code is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore this email."
+    from_email = getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'support@legify.com')
     
     try:
-        # Check if ners is valid
-        if not ners:
-            return Response({"error": "No entities extracted from text"}, status=400)
-
-        # Convert the ners dict to a JSON string for the prompt
-        prompt = json.dumps(ners)
-        if not prompt:
-            return Response({"error": "Prompt is required"}, status=400)
-
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "contents": [
-                {
-                    "parts": [
-                        {
-                            "text": prompt + " filter this json out as per the name entity recognition standards like dont keep unnecessary or non-matching entities for the keys and return it in same format"
-                        }
-                    ]
-                }
-            ]
-        }
-
-        # Make the API request to Gemini
-        response = requests.post(GEMINI_URL, headers=headers, json=data)
-
-        # Check if the request was successful
-        response.raise_for_status()  # Raises an HTTPError for bad responses
-
-        print(response)
-        response_data = response.json()
-        
-        print("Gemini API Response:", response_data)  # Debugging
-
-        # Validate and extract the response
-        if "candidates" in response_data and len(response_data["candidates"]) > 0:
-            candidate = response_data["candidates"][0]
-            if "content" in candidate and "parts" in candidate["content"] and len(candidate["content"]["parts"]) > 0:
-                response_text = candidate["content"]["parts"][0]["text"]
-                return Response({"response": response_text}, status=200)
-
-        return Response({"error": "Invalid API response structure"}, status=500)
-
-    except requests.exceptions.RequestException as e:
-        print("Request Exception:", str(e))
-        print(traceback.format_exc())
-        return Response({"error": f"API request failed: {str(e)}"}, status=500)
+        send_mail(subject, message, from_email, [email], fail_silently=False)
     except Exception as e:
-        print("Exception:", str(e))
-        print(traceback.format_exc())
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": f"Failed to send email: {str(e)}"}, status=500)
+        
+    response_data = {"message": "If a user with this email exists, a 6-digit OTP has been sent."}
     
+    # Return the OTP directly in response during DEBUG/testing mode
+    if django_settings.DEBUG:
+        response_data["otp"] = otp
+        
+    return Response(response_data)
 
+
+@api_view(['POST'])
+def reset_password_with_otp(request):
+    email = request.data.get('email')
+    otp = request.data.get('otp')
+    new_password = request.data.get('password')
+    
+    if not email or not otp or not new_password:
+        return Response({"error": "Email, OTP, and new password are required"}, status=400)
+        
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({"error": "User with this email does not exist"}, status=400)
+        
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Find active OTP in last 10 minutes
+    ten_minutes_ago = timezone.now() - timedelta(minutes=10)
+    otp_record = PasswordResetOTP.objects.filter(
+        user=user,
+        otp=otp,
+        is_verified=False,
+        created_at__gte=ten_minutes_ago
+    ).order_by('-created_at').first()
+    
+    if not otp_record:
+        return Response({"error": "Invalid or expired OTP"}, status=400)
+        
+    # Mark OTP as verified
+    otp_record.is_verified = True
+    otp_record.save()
+    
+    # Invalidate other OTPs
+    PasswordResetOTP.objects.filter(user=user, is_verified=False).update(is_verified=True)
+    
+    # Reset password
+    user.set_password(new_password)
+    user.save()
+    
+    return Response({"message": "Password has been reset successfully!"})

@@ -1,0 +1,214 @@
+/* ==========================================================================
+   LEXBOTAI CUSTOM PREMIUM THEME SYSTEM (LIGHT/DARK MODES)
+   ========================================================================== */
+
+/* 🌓 ROOT PALETTES & PREFERENCES */
+:root {
+  /* Common System tokens */
+  --transition-speed: 0.3s;
+  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-family: 'Outfit', sans-serif;
+  
+  /* Light Mode Palette */
+  --bg-color-primary: #f8fafc;
+  --bg-color-secondary: #ffffff;
+  --bg-color-card: #ffffff;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #334155;
+  --sidebar-item-hover: #f1f5f9;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --divider: #f1f5f9;
+  --badge-tier-bg: #dbeafe;
+  --badge-tier-text: #1d4ed8;
+  --badge-active-bg: #dcfce7;
+  --badge-active-text: #15803d;
+  --table-th-color: #475569;
+}
+
+body.dark {
+  /* Dark Mode Palette */
+  --bg-color-primary: #0f172a;
+  --bg-color-secondary: #1e293b;
+  --bg-color-card: #1e293b;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #3b82f6;
+  --accent-hover: #60a5fa;
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #e2e8f0;
+  --sidebar-item-hover: #334155;
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --input-bg: #0f172a;
+  --input-border: #475569;
+  --divider: #334155;
+  --badge-tier-bg: #1e3a8a;
+  --badge-tier-text: #93c5fd;
+  --badge-active-bg: #064e3b;
+  --badge-active-text: #6ee7b7;
+  --table-th-color: #94a3b8;
+}
+
+/* 🌐 GLOBAL HTML & BODY DEFAULTS */
+body {
+  background-color: var(--bg-color-primary) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family);
+  transition: background-color var(--transition-speed) var(--transition-ease),
+              color var(--transition-speed) var(--transition-ease);
+}
+
+/* ==========================================================================
+   GLOBAL COMPONENT OVERRIDES (VANILLA CSS THEME BRIDGE)
+   ========================================================================== */
+
+/* 📇 CARDS & BLOCKS */
+.stat-card,
+.instructions-card,
+.upload-card,
+.history-card,
+.settings-container,
+.settings-section,
+.profile-card,
+.profile-details-card,
+.document-history-card {
+  background-color: var(--bg-color-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+  transition: background-color var(--transition-speed) var(--transition-ease),
+              border-color var(--transition-speed) var(--transition-ease),
+              box-shadow var(--transition-speed) var(--transition-ease) !important;
+}
+
+/* 🎨 SIDEBAR OVERRIDES */
+.sidebar {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+  border-right: 1px solid var(--border-color) !important;
+  transition: background-color var(--transition-speed) var(--transition-ease),
+              border-color var(--transition-speed) var(--transition-ease) !important;
+}
+
+.sidebar-item {
+  color: var(--sidebar-text) !important;
+}
+
+.sidebar-item:hover {
+  background-color: var(--sidebar-item-hover) !important;
+}
+
+.sidebar-item.active {
+  background-color: var(--accent-color) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-header h2 {
+  color: var(--accent-color) !important;
+  transition: color var(--transition-speed) var(--transition-ease);
+}
+
+/* 📝 TYPOGRAPHY & DESCRIPTIONS */
+.stat-title,
+.card-description,
+.instruction-item p,
+.upload-label,
+.setting-desc,
+.settings-subtitle,
+.profile-email-sub,
+.card-header-left p,
+.metadata-label {
+  color: var(--text-secondary) !important;
+  transition: color var(--transition-speed) var(--transition-ease);
+}
+
+.dashboard-title,
+.settings-title,
+.profile-title,
+.profile-username,
+.card-header-left h3,
+.setting-title,
+.section-heading,
+.metadata-value {
+  color: var(--text-primary) !important;
+  transition: color var(--transition-speed) var(--transition-ease);
+}
+
+/* 🔘 INPUTS, DROPDOWNS & CONTROLS */
+.select-box,
+.profile-form input,
+.form-group input {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--input-border) !important;
+  transition: background-color var(--transition-speed) var(--transition-ease),
+              border-color var(--transition-speed) var(--transition-ease),
+              color var(--transition-speed) var(--transition-ease) !important;
+}
+
+.select-box:focus,
+.profile-form input:focus,
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+.select-box option {
+  background-color: var(--bg-color-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 📊 DASHBOARD & HISTORY TABLES */
+.history-table th {
+  color: var(--table-th-color) !important;
+}
+
+.history-table tr {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.card-footer {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* 🏷️ BADGES & LABELS */
+.badge-tier {
+  background-color: var(--badge-tier-bg) !important;
+  color: var(--badge-tier-text) !important;
+}
+
+.badge-active {
+  background-color: var(--badge-active-bg) !important;
+  color: var(--badge-active-text) !important;
+}
+
+/* ⚖️ ACCENT & ALERTS */
+.step-number {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: var(--accent-color) !important;
+}
+
+.upload-area {
+  border-color: var(--border-color) !important;
+}
+
+.upload-area:hover {
+  border-color: var(--accent-color) !important;
+}
+
+/* Divider bars */
+hr {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.metadata-list {
+  border-top: 1px solid var(--border-color) !important;
+}

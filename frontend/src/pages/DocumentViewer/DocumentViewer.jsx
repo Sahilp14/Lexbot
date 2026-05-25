@@ -7,7 +7,23 @@ const DocumentViewer = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const location = useLocation();
   const navigate = useNavigate();
-  const { uploadedFile, ocrResult,sometext } = location.state || {};
+
+  // Extract initial router state parameters
+  const { 
+    fileId, 
+    fileName, 
+    fileUrl, 
+    uploadedFile: initialFile, 
+    ocrResult: initialOcr, 
+    sometext: initialSome 
+  } = location.state || {};
+
+  // Component states
+  const [uploadedFile, setUploadedFile] = useState(initialFile || null);
+  const [ocrResult, setOcrResult] = useState(initialOcr || "");
+  const [sometext, setSometext] = useState(initialSome || "");
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
   const [nerResult, setNerResult] = useState(null);
   const [nerLoading, setNerLoading] = useState(false);
   const [nerError, setNerError] = useState(null);
@@ -16,6 +32,30 @@ const DocumentViewer = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isNerOpen, setIsNerOpen] = useState(false);
+
+  // Fetch document details if loading from sidebar history click
+  useEffect(() => {
+    const fetchHistoryDetails = async () => {
+      if (!fileId || initialOcr) return;
+
+      setIsLoadingHistory(true);
+      try {
+        const response = await axios.get(`${apiUrl}users/history/${fileId}/`, {
+          headers: {
+            Authorization: `Token ${localStorage.getItem("authToken")}`,
+          },
+        });
+        setOcrResult(response.data.extracted_text || "OCR text not available");
+        setSometext(response.data.summarized_text || "Summarized text");
+      } catch (err) {
+        console.error("Error loading document history details:", err);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchHistoryDetails();
+  }, [fileId, initialOcr, apiUrl]);
 
   // Fetch NER data when popup is opened
   const fetchNerData = async () => {
@@ -96,39 +136,54 @@ const DocumentViewer = () => {
     }
   };
 
+  // Helper to determine file type from relative URL
+  const getFileTypeFromUrl = (urlOrName) => {
+    if (!urlOrName) return "";
+    const ext = urlOrName.split('.').pop().toLowerCase();
+    if (ext === 'pdf') return 'application/pdf';
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image/' + ext;
+    return '';
+  };
+
   // Function to determine file preview
-  const renderFilePreview = (file) => {
-    if (!file) return <p className="no-content">No document uploaded</p>;
+  const renderFilePreview = () => {
+    // 1. If we have a local JS File object (direct upload)
+    if (uploadedFile) {
+      const localUrl = URL.createObjectURL(uploadedFile);
+      const fileType = uploadedFile.type.toLowerCase();
 
-    const fileUrl = URL.createObjectURL(file);
-    const fileType = file.type.toLowerCase();
-
-    if (fileType === "application/pdf") {
-      return <iframe src={fileUrl} title="Document Preview" className="file-preview" />;
-    } else if (fileType.startsWith("image/")) {
-      return <img src={fileUrl} alt="Document Preview" className="file-preview" />;
-    } else if (
-      fileType === "application/msword" ||
-      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
-      return (
-        <p className="preview-message">
-          Word document preview not supported. File: {file.name}
-        </p>
-      );
-    } else if (fileType === "text/plain") {
-      return (
-        <p className="preview-message">
-          Text file preview not supported directly. File: {file.name}
-        </p>
-      );
-    } else {
-      return (
-        <p className="preview-message">
-          Preview not available for this file type: {file.name}
-        </p>
-      );
+      if (fileType === "application/pdf") {
+        return <iframe src={localUrl} title="Document Preview" className="file-preview" />;
+      } else if (fileType.startsWith("image/")) {
+        return <img src={localUrl} alt="Document Preview" className="file-preview" />;
+      } else {
+        return (
+          <p className="preview-message">
+            Preview not supported directly. File: {uploadedFile.name}
+          </p>
+        );
+      }
     }
+
+    // 2. If we are loading from history and have fileUrl
+    if (fileUrl) {
+      const fullUrl = `http://localhost:8000${fileUrl}`;
+      const fileType = getFileTypeFromUrl(fileUrl || fileName);
+
+      if (fileType === "application/pdf") {
+        return <iframe src={fullUrl} title="Document Preview" className="file-preview" />;
+      } else if (fileType.startsWith("image/")) {
+        return <img src={fullUrl} alt="Document Preview" className="file-preview" />;
+      } else {
+        return (
+          <p className="preview-message">
+            Preview not supported directly. File: {fileName}
+          </p>
+        );
+      }
+    }
+
+    return <p className="no-content">No document uploaded</p>;
   };
 
   // Handle back navigation
@@ -164,6 +219,30 @@ const DocumentViewer = () => {
     );
   };
 
+  if (isLoadingHistory) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
+          <div className="spinner" style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid rgba(37, 99, 235, 0.1)",
+            borderTop: "4px solid #2563eb",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite"
+          }}></div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Loading document from history...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="viewer-container">
       <button className="back-btn" onClick={handleBack}>
@@ -177,10 +256,10 @@ const DocumentViewer = () => {
             <p className="pane-description">Original document preview</p>
           </div>
           <div className="pane-content">
-            {uploadedFile ? (
+            {uploadedFile || fileUrl ? (
               <div className="document-preview">
-                <p className="file-name">{uploadedFile.name}</p>
-                {renderFilePreview(uploadedFile)}
+                <p className="file-name">{uploadedFile ? uploadedFile.name : fileName}</p>
+                {renderFilePreview()}
               </div>
             ) : (
               <p className="no-content">No document uploaded</p>

@@ -6,7 +6,6 @@ import nltk
 from transformers import AutoTokenizer, AutoModelForPreTraining, pipeline
 from nltk.tokenize import sent_tokenize
 import requests
-from dotenv import load_dotenv
 
 # Download required NLTK data
 try:
@@ -247,11 +246,8 @@ def summarize_text(text,level):
     print(simplified)
     print("-" * 50)
 
-    # loading api key from .env file
-    load_dotenv()
-    API_KEY = os.getenv("API")
-    GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={API_KEY}"
-
+    API_KEY = "AIzaSyA6g4B94T4p4rGBFaWe1FpgiUJfPmwfWw8"
+    GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
     prompt = ""
     if level == 1:
         prompt = "By referring to the data i m providing please make it simplified summarized in a really very concise simple and understandable language like upto 40-50 lines for me and give only what i have asked you should add you one words like here is the easy understading doc or anything like that just process the given data and give it in a proper formatted and structured manner  : "+text

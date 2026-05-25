@@ -4,17 +4,23 @@
     height: 100vh;
     width: 100%;
   }
-  
+  .main-content {
+   /* same as sidebar width */
+  padding: 30px;
+  min-height: 100vh;
+  background: #f8fafc;
+}
   .main-content-dash {
-    margin-left: 250px;
+    /* margin-left: 250px; */
     flex-grow: 1;
     overflow-y: auto;
   }
   
   .container {
-    max-width: 1280px;
+    /* max-width: 1280px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 2rem 1rem; */
+     width: 100%;
   }
   
   .dashboard-title {

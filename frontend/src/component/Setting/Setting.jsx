@@ -1,411 +1,256 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from "react";
+import "./Setting.css";
+import { LanguageContext } from "../../context/LanguageContext";
+import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Loader2, Save, Settings as SettingsIcon } from "lucide-react";
 
 const Settings = () => {
-    const [theme, setTheme] = useState('light');
-    const [language, setLanguage] = useState('english');
-    const [notifications, setNotifications] = useState(true);
-    const [autoSave, setAutoSave] = useState(true);
+  const { language, setLanguage, theme, setTheme } = useContext(LanguageContext);
+  const { t } = useTranslation();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-    const styles = {
-        container: {
-            maxWidth: '800px',
-            margin: '0 auto',
-            padding: '40px 20px',
-            backgroundColor: '#f8fafc',
-            minHeight: '100vh'
-        },
-        header: {
-            textAlign: 'center',
-            marginBottom: '40px'
-        },
-        title: {
-            color: '#1f2937',
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '8px'
-        },
-        subtitle: {
-            color: '#6b7280',
-            fontSize: '1.125rem'
-        },
-        section: {
-            background: 'white',
-            borderRadius: '12px',
-            padding: '24px',
-            marginBottom: '24px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-        },
-        sectionHeader: {
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '20px',
-            paddingBottom: '16px',
-            borderBottom: '1px solid #f3f4f6'
-        },
-        sectionIcon: {
-            fontSize: '1.5rem',
-            marginRight: '12px'
-        },
-        sectionTitle: {
-            color: '#1f2937',
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            margin: 0
-        },
-        settingItem: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            padding: '16px 0',
-            borderBottom: '1px solid #f9fafb'
-        },
-        lastSettingItem: {
-            borderBottom: 'none'
-        },
-        settingInfo: {
-            flex: 1
-        },
-        settingLabel: {
-            display: 'block',
-            color: '#1f2937',
-            fontWeight: '500',
-            marginBottom: '4px',
-            fontSize: '1rem'
-        },
-        settingDescription: {
-            color: '#6b7280',
-            fontSize: '0.875rem',
-            margin: 0,
-            lineHeight: '1.4'
-        },
-        toggleSwitch: {
-            position: 'relative',
-            display: 'inline-block',
-            width: '52px',
-            height: '28px'
-        },
-        toggleInput: {
-            opacity: 0,
-            width: 0,
-            height: 0
-        },
-        toggleSlider: {
-            position: 'absolute',
-            cursor: 'pointer',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: '#d1d5db',
-            transition: '.4s',
-            borderRadius: '34px'
-        },
-        toggleSliderBefore: {
-            position: 'absolute',
-            content: '""',
-            height: '20px',
-            width: '20px',
-            left: '4px',
-            bottom: '4px',
-            backgroundColor: 'white',
-            transition: '.4s',
-            borderRadius: '50%'
-        },
-        toggleSliderChecked: {
-            backgroundColor: '#2563eb'
-        },
-        toggleSliderBeforeChecked: {
-            transform: 'translateX(24px)'
-        },
-        radioGroup: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-        },
-        radioOption: {
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'pointer'
-        },
-        radioInput: {
-            marginRight: '8px',
-            accentColor: '#2563eb'
-        },
-        radioLabel: {
-            color: '#374151',
-            fontSize: '0.95rem'
-        },
-        selectInput: {
-            padding: '8px 12px',
-            border: '1px solid #d1d5db',
-            borderRadius: '6px',
-            backgroundColor: 'white',
-            color: '#374151',
-            fontSize: '0.95rem',
-            minWidth: '150px'
-        },
-        actionButton: {
-            padding: '8px 16px',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '0.95rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-        },
-        infoValue: {
-            color: '#6b7280',
-            fontSize: '0.95rem',
-            fontWeight: '500'
+  // Local draft states
+  const [draftTheme, setDraftTheme] = useState("light");
+  const [draftLanguage, setDraftLanguage] = useState("english");
+  const [draftNotifications, setDraftNotifications] = useState(true);
+  const [draftAutoSave, setDraftAutoSave] = useState(true);
+
+  // Status states
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Load settings on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          throw new Error("No authentication token found");
         }
+
+        const res = await axios.get(`${apiUrl}settings/`, {
+          headers: {
+            Authorization: `Token ${authToken}`,
+          },
+        });
+
+        if (res.data) {
+          const fetchedTheme = res.data.theme || "light";
+          const fetchedLang = res.data.language || "english";
+          const fetchedNotif = res.data.notifications !== undefined ? res.data.notifications : true;
+          const fetchedAuto = res.data.autoSave !== undefined ? res.data.autoSave : true;
+
+          // Update drafts
+          setDraftTheme(fetchedTheme);
+          setDraftLanguage(fetchedLang);
+          setDraftNotifications(fetchedNotif);
+          setDraftAutoSave(fetchedAuto);
+
+          // Apply to global app context
+          setTheme(fetchedTheme);
+          setLanguage(fetchedLang);
+
+          // Save to localStorage as a cached copy
+          localStorage.setItem("app_theme", fetchedTheme);
+          localStorage.setItem("app_language", fetchedLang);
+          localStorage.setItem("app_notifications", JSON.stringify(fetchedNotif));
+          localStorage.setItem("app_autoSave", JSON.stringify(fetchedAuto));
+        }
+      } catch (err) {
+        console.warn("Failed to fetch settings from API, falling back to local cache:", err);
+        
+        // Fallback to local storage or global context
+        const cachedTheme = localStorage.getItem("app_theme") || theme || "light";
+        const cachedLang = localStorage.getItem("app_language") || language || "english";
+        const cachedNotif = localStorage.getItem("app_notifications") 
+          ? JSON.parse(localStorage.getItem("app_notifications")) 
+          : true;
+        const cachedAuto = localStorage.getItem("app_autoSave")
+          ? JSON.parse(localStorage.getItem("app_autoSave"))
+          : true;
+
+        setDraftTheme(cachedTheme);
+        setDraftLanguage(cachedLang);
+        setDraftNotifications(cachedNotif);
+        setDraftAutoSave(cachedAuto);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const settingsSections = [
-        {
-            
-            title: "General",
-            icon: "⚙️",
-            settings: [
-                {
-                    type: "toggle",
-                    label: "Notifications",
-                    value: notifications,
-                    onChange: setNotifications,
-                    description: "Receive notifications about updates and features"
-                },
-                {
-                    type: "toggle",
-                    label: "Auto Save",
-                    value: autoSave,
-                    onChange: setAutoSave,
-                    description: "Automatically save your document changes"
-                }
-            ]
-        },
-        {
-            title: "Appearance",
-            icon: "🎨",
-            settings: [
-                {
-                    type: "radio",
-                    label: "Theme",
-                    value: theme,
-                    onChange: setTheme,
-                    options: [
-                        { label: "Light", value: "light" },
-                        { label: "Dark", value: "dark" },
-                        { label: "System", value: "system" }
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Language & Region",
-            icon: "🌐",
-            settings: [
-                {
-                    type: "select",
-                    label: "Language",
-                    value: language,
-                    onChange: setLanguage,
-                    options: [
-                        { label: "English", value: "english" },
-                        { label: "Spanish", value: "spanish" },
-                        { label: "French", value: "french" },
-                        { label: "German", value: "german" }
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Data & Privacy",
-            icon: "🔒",
-            settings: [
-                {
-                    type: "button",
-                    label: "Export Data",
-                    action: () => alert("Exporting your data..."),
-                    description: "Download all your documents and data"
-                },
-                {
-                    type: "button",
-                    label: "Clear Cache",
-                    action: () => alert("Cache cleared successfully"),
-                    description: "Clear temporary files and free up space"
-                }
-            ]
-        },
-        {
-            title: "About",
-            icon: "ℹ️",
-            settings: [
-                {
-                    type: "info",
-                    label: "Version",
-                    value: "1.0.0",
-                    description: "Current app version"
-                },
-                {
-                    type: "info",
-                    label: "Last Updated",
-                    value: "Nov 7, 2024",
-                    description: "Last app update date"
-                }
-            ]
-        }
-    ];
+    fetchSettings();
+  }, [apiUrl, theme, language, setTheme, setLanguage]);
 
-    const renderSetting = (setting, index, isLast) => {
-        const itemStyle = {
-            ...styles.settingItem,
-            ...(isLast ? styles.lastSettingItem : {})
-        };
+  // Save changes
+  const saveSettings = async () => {
+    setSaving(true);
+    try {
+      const authToken = localStorage.getItem("authToken");
 
-        switch (setting.type) {
-            case "toggle":
-                return (
-                    <div key={index} style={itemStyle}>
-                        <div style={styles.settingInfo}>
-                            <label style={styles.settingLabel}>{setting.label}</label>
-                            <p style={styles.settingDescription}>{setting.description}</p>
-                        </div>
-                        <label style={styles.toggleSwitch}>
-                            <input
-                                type="checkbox"
-                                checked={setting.value}
-                                onChange={(e) => setting.onChange(e.target.checked)}
-                                style={styles.toggleInput}
-                            />
-                            <span 
-                                style={{
-                                    ...styles.toggleSlider,
-                                    ...(setting.value ? styles.toggleSliderChecked : {})
-                                }}
-                            >
-                                <span 
-                                    style={{
-                                        ...styles.toggleSliderBefore,
-                                        ...(setting.value ? styles.toggleSliderBeforeChecked : {})
-                                    }}
-                                />
-                            </span>
-                        </label>
-                    </div>
-                );
+      // 1. Sync globally (Context triggers body class and i18n change instantly)
+      setTheme(draftTheme);
+      setLanguage(draftLanguage);
 
-            case "radio":
-                return (
-                    <div key={index} style={itemStyle}>
-                        <div style={styles.settingInfo}>
-                            <label style={styles.settingLabel}>{setting.label}</label>
-                        </div>
-                        <div style={styles.radioGroup}>
-                            {setting.options.map((option, optIndex) => (
-                                <label key={optIndex} style={styles.radioOption}>
-                                    <input
-                                        type="radio"
-                                        name={setting.label}
-                                        value={option.value}
-                                        checked={setting.value === option.value}
-                                        onChange={(e) => setting.onChange(e.target.value)}
-                                        style={styles.radioInput}
-                                    />
-                                    <span style={styles.radioLabel}>{option.label}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                );
+      // 2. Cache in localStorage
+      localStorage.setItem("app_theme", draftTheme);
+      localStorage.setItem("app_language", draftLanguage);
+      localStorage.setItem("app_notifications", JSON.stringify(draftNotifications));
+      localStorage.setItem("app_autoSave", JSON.stringify(draftAutoSave));
 
-            case "select":
-                return (
-                    <div key={index} style={itemStyle}>
-                        <div style={styles.settingInfo}>
-                            <label style={styles.settingLabel}>{setting.label}</label>
-                        </div>
-                        <select
-                            value={setting.value}
-                            onChange={(e) => setting.onChange(e.target.value)}
-                            style={styles.selectInput}
-                        >
-                            {setting.options.map((option, optIndex) => (
-                                <option key={optIndex} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                );
+      // 3. Send to Django REST backend
+      if (authToken) {
+        await axios.post(
+          `${apiUrl}settings/`,
+          {
+            theme: draftTheme,
+            language: draftLanguage,
+            notifications: draftNotifications,
+            autoSave: draftAutoSave,
+          },
+          {
+            headers: {
+              Authorization: `Token ${authToken}`,
+            },
+          }
+        );
+      }
 
-            case "button":
-                return (
-                    <div key={index} style={itemStyle}>
-                        <div style={styles.settingInfo}>
-                            <label style={styles.settingLabel}>{setting.label}</label>
-                            <p style={styles.settingDescription}>{setting.description}</p>
-                        </div>
-                        <button
-                            onClick={setting.action}
-                            style={styles.actionButton}
-                            onMouseOver={(e) => {
-                                e.target.style.backgroundColor = '#1d4ed8';
-                            }}
-                            onMouseOut={(e) => {
-                                e.target.style.backgroundColor = '#2563eb';
-                            }}
-                        >
-                            {setting.label}
-                        </button>
-                    </div>
-                );
+      toast.success("Settings saved and applied successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } catch (err) {
+      console.error("Error saving settings to API:", err);
+      toast.warn("Settings applied locally, but could not sync with database.", {
+        position: "top-right",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
-            case "info":
-                return (
-                    <div key={index} style={itemStyle}>
-                        <div style={styles.settingInfo}>
-                            <label style={styles.settingLabel}>{setting.label}</label>
-                            <p style={styles.settingDescription}>{setting.description}</p>
-                        </div>
-                        <span style={styles.infoValue}>{setting.value}</span>
-                    </div>
-                );
-
-            default:
-                return null;
-        }
-    };
-
+  if (loading) {
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>Settings</h1>
-                <p style={styles.subtitle}>Customize your LexBot experience</p>
-            </div>
-
-            <div>
-                {settingsSections.map((section, index) => (
-                    <div key={index} style={styles.section}>
-                        <div style={styles.sectionHeader}>
-                            <span style={styles.sectionIcon}>{section.icon}</span>
-                            <h2 style={styles.sectionTitle}>{section.title}</h2>
-                        </div>
-                        <div>
-                            {section.settings.map((setting, settingIndex) => 
-                                renderSetting(
-                                    setting, 
-                                    settingIndex, 
-                                    settingIndex === section.settings.length - 1
-                                )
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+          <Loader2 size={40} className="spinner-icon" style={{ color: "#2563eb", animation: "spin 1s linear infinite" }} />
+          <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>{t("loading_prefs")}</p>
         </div>
+      </div>
     );
+  }
+
+  return (
+    <div className="settings-container">
+      {/* HEADER */}
+      <div className="settings-header">
+        <h1 className="settings-title">
+          <SettingsIcon size={28} style={{ marginRight: "10px", verticalAlign: "middle" }} />
+          {t("settings")}
+        </h1>
+        <p className="settings-subtitle">{t("customize_experience")}</p>
+      </div>
+
+      {/* NOTIFICATIONS */}
+      <div className="settings-section">
+        <div className="setting-item">
+          <div>
+            <h3 className="setting-title">{t("notifications")}</h3>
+            <p className="setting-desc">{t("notifications_desc")}</p>
+          </div>
+
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={draftNotifications}
+              onChange={() => setDraftNotifications(!draftNotifications)}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      {/* AUTO SAVE */}
+      <div className="settings-section">
+        <div className="setting-item">
+          <div>
+            <h3 className="setting-title">{t("auto_save")}</h3>
+            <p className="setting-desc">{t("auto_save_desc")}</p>
+          </div>
+
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={draftAutoSave}
+              onChange={() => setDraftAutoSave(!draftAutoSave)}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      {/* THEME */}
+      <div className="settings-section">
+        <h3 className="section-heading">{t("theme")}</h3>
+
+        <div className="radio-group">
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <input
+              type="radio"
+              value="light"
+              checked={draftTheme === "light"}
+              onChange={(e) => setDraftTheme(e.target.value)}
+            />
+            {t("light")}
+          </label>
+
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <input
+              type="radio"
+              value="dark"
+              checked={draftTheme === "dark"}
+              onChange={(e) => setDraftTheme(e.target.value)}
+            />
+            {t("dark")}
+          </label>
+        </div>
+      </div>
+
+      {/* LANGUAGE */}
+      <div className="settings-section">
+        <h3 className="section-heading">{t("language")}</h3>
+
+        <select
+          className="select-box"
+          value={draftLanguage}
+          onChange={(e) => setDraftLanguage(e.target.value)}
+          style={{ width: "100%", maxWidth: "300px", padding: "10px", borderRadius: "8px", cursor: "pointer" }}
+        >
+          <option value="english">English</option>
+          <option value="hindi">Hindi</option>
+          <option value="spanish">Spanish</option>
+          <option value="french">French</option>
+        </select>
+      </div>
+
+      {/* SAVE BUTTON */}
+      <button className="save-btn" onClick={saveSettings} disabled={saving} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {saving ? (
+          <>
+            <Loader2 size={18} className="spinner-icon" style={{ animation: "spin 1s linear infinite" }} />
+            <span>{t("saving")}</span>
+          </>
+        ) : (
+          <>
+            <Save size={18} />
+            <span>{t("save_settings")}</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
 };
 
 export default Settings;

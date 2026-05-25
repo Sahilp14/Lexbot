@@ -5,6 +5,7 @@ import "./UploadDocument.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const UploadDocument = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -74,6 +75,9 @@ const UploadDocument = () => {
               position: "top-right",
               autoClose: 3000,
             });
+            // Dispatch custom event to trigger history reload in Sidebar
+            window.dispatchEvent(new Event("documentUploaded"));
+
             navigate("/viewer", {
               state: {
                 uploadedFile: file,
@@ -96,15 +100,17 @@ const UploadDocument = () => {
     }
   };
 
+  const { t } = useTranslation();
+
   return (
     <div className="upload-card">
       <div className="card-header">
         <h2 className="card-title">
           <Upload size={20} />
-          Upload Legal Document
+          {t("upload_legal_doc")}
         </h2>
         <p className="card-description">
-          Upload a legal document to get a simplified summary
+          {t("upload_legal_doc_desc")}
         </p>
       </div>
       <div className="card-content">
@@ -113,10 +119,10 @@ const UploadDocument = () => {
             <label htmlFor="document" className="upload-label">
               <Upload size={32} />
               <span>
-                {file ? file.name : "Click to select or drag and drop"}
+                {file ? file.name : t("drag_drop_click")}
               </span>
               <span className="upload-info">
-                Supports PDF, DOCX, and TXT (Max 10MB)
+                {t("drag_drop_support")}
               </span>
             </label>
             <input
@@ -131,7 +137,7 @@ const UploadDocument = () => {
           {processing && (
             <div className="progress-section">
               <div className="progress-header">
-                <span>Processing document...</span>
+                <span>{t("processing_doc")}</span>
                 <span>{progress}%</span>
               </div>
               <div className="progress-bar">
@@ -148,7 +154,7 @@ const UploadDocument = () => {
             className="submit-btn"
             disabled={!file || processing}
           >
-            {processing ? "Processing..." : "Analyze Document"}
+            {processing ? t("processing") : t("analyze_btn")}
           </button>
         </form>
       </div>

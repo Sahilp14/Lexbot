@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import Sidebar from '../../component/Sidebar/Sidebar';
 import Stats from '../../component/Stats/Stats';
 import Instructions from '../../component/Instructions/Instructions';
 import UploadDocument from '../../component/UploadDocument/UploadDocument';
 import DocumentHistory from '../../component/DocumentHistory/DocumentHistory';
+import { useTranslation } from "react-i18next";
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     documentsProcessed: 0,
     timeSaved: 0,
@@ -16,24 +17,21 @@ const Dashboard = () => {
   const updateStats = () => {
     setStats((prevStats) => ({
       documentsProcessed: prevStats.documentsProcessed + 1,
-      timeSaved: prevStats.timeSaved + 1, // Assuming 1 file saves 1 hr (adjust as needed)
-      aiAnalyses: prevStats.aiAnalyses + 2, // Assuming each document runs 2 AI analyses
+      timeSaved: prevStats.timeSaved + 1,
+      aiAnalyses: prevStats.aiAnalyses + 2,
     }));
   };
 
   return (
-    <div className="dashboard">
-      <Sidebar />
-      <div className="main-content-dash">
-        <div className="container">
-          <h1 className="dashboard-title">Document Dashboard</h1>
-          <Stats stats={stats} />
-          <div className="content-grid">
-            <Instructions />
-            <UploadDocument updateStats={updateStats} />
-          </div>
-          <DocumentHistory />
+    <div className="main-content-dash">
+      <div className="container">
+        <h1 className="dashboard-title">{t("document_dashboard")}</h1>
+        <Stats stats={stats} />
+        <div className="content-grid">
+          <Instructions />
+          <UploadDocument updateStats={updateStats} />
         </div>
+        <DocumentHistory />
       </div>
     </div>
   );

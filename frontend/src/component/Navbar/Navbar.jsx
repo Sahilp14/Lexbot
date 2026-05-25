@@ -1,7 +1,8 @@
-// Navbar.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AlignRight, X, FileText } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+
 import './Navbar.css';
 
 const Navbar = () => {
@@ -9,11 +10,12 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
+  const { t } = useTranslation(); // ✅ i18next
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -26,58 +28,57 @@ const Navbar = () => {
     <header className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-container">
         <nav className="navbar-nav">
+
           {/* Logo */}
           <Link to="/" className="navbar-logo">
             <div className="logo-icon">
-              <FileText size={20} className="logo-icon-svg" />
+              <FileText size={20} />
             </div>
             <span className="logo-text">LexBot</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="nav-links desktop-nav">
-            <Link 
-              to="/" 
-              className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-            >
-              Home
+
+            <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+              {t("home")}
             </Link>
-            <Link 
-              to="/contact" 
-              className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}
-            >
-              Contact
+
+            <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}>
+              {t("contact")}
             </Link>
-            <Link 
-              to="/pricing" 
-              className={`nav-link ${location.pathname === '/pricing' ? 'active' : ''}`}
-            >
-              Pricing
+
+            <Link to="/pricing" className={`nav-link ${location.pathname === '/pricing' ? 'active' : ''}`}>
+              {t("pricing")}
             </Link>
-             <Link 
-              to="/about" 
-              className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}
-            >
-              About
+
+            <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
+              {t("about")}
             </Link>
-            
+
           </div>
 
           {/* Auth Buttons */}
           <div className="auth-buttons desktop-nav">
+
             <Link to="/login">
-              <button className="btn btn-ghost">Log in</button>
+              <button className="btn btn-ghost">
+                {t("login")}
+              </button>
             </Link>
+
             <Link to="/signup">
-              <button className="btn btn-primary">Get Started</button>
+              <button className="btn btn-primary">
+                {t("signup")}
+              </button>
             </Link>
+
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="mobile-menu-btn"
-            aria-label={isOpen ? "Close Menu" : "Open Menu"}
           >
             {isOpen ? <X size={24} /> : <AlignRight size={24} />}
           </button>
@@ -85,35 +86,35 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div 
-        className={`mobile-menu ${isOpen ? 'mobile-menu-open' : ''}`}
-      >
+      <div className={`mobile-menu ${isOpen ? 'mobile-menu-open' : ''}`}>
         <div className="mobile-menu-content">
-          <Link 
-            to="/" 
-            className={`mobile-nav-link ${location.pathname === '/' ? 'active' : ''}`}
-          >
-            Home
+
+          <Link to="/" className="mobile-nav-link">
+            {t("home")}
           </Link>
-          <Link 
-            to="/documents" 
-            className={`mobile-nav-link ${location.pathname === '/documents' ? 'active' : ''}`}
-          >
+
+          <Link to="/documents" className="mobile-nav-link">
             Documents
           </Link>
-          <Link 
-            to="/pricing" 
-            className={`mobile-nav-link ${location.pathname === '/pricing' ? 'active' : ''}`}
-          >
-            Pricing
+
+          <Link to="/pricing" className="mobile-nav-link">
+            {t("pricing")}
           </Link>
+
           <div className="mobile-auth-section">
-            <Link to="/login" className="mobile-auth-link">
-              <button className="btn btn-ghost mobile-btn">Log in</button>
+
+            <Link to="/login">
+              <button className="btn btn-ghost mobile-btn">
+                {t("login")}
+              </button>
             </Link>
-            <Link to="/signup" className="mobile-auth-link">
-              <button className="btn btn-primary mobile-btn">Get Started</button>
+
+            <Link to="/signup">
+              <button className="btn btn-primary mobile-btn">
+                {t("signup")}
+              </button>
             </Link>
+
           </div>
         </div>
       </div>
