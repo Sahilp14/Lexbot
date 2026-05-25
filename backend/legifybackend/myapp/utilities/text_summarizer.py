@@ -246,7 +246,7 @@ def summarize_text(text,level):
     print(simplified)
     print("-" * 50)
 
-    API_KEY = "AIzaSyA6g4B94T4p4rGBFaWe1FpgiUJfPmwfWw8"
+    API_KEY = os.getenv("GOOGLE_API_KEY")
     GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
     prompt = ""
     if level == 1:

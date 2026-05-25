@@ -224,7 +224,7 @@ def cleanup_files(request):
 
 # ================= GEMINI CHAT =================
 
-API_KEY = "YOUR_API_KEY"
+API_KEY = os.getenv("GOOGLE_API_KEY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
 
 
