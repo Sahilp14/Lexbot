@@ -17,7 +17,7 @@ def extract_text_via_gemini(file_path, mime_type):
     """Extract text from a file using the Gemini multimodal API as a fallback OCR engine."""
     try:
         # Load API KEY from env, or fall back to views.py key
-        api_key = os.getenv("GEMINI_API_KEY", "AIzaSyBYbxvim0YbzmfJkZNmYexx2gMRmCRRFbE")
+        api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
         
         with open(file_path, "rb") as f:
