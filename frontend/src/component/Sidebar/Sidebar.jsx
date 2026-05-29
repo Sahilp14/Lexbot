@@ -180,7 +180,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
               <div className="dropdown-avatar">{getInitials()}</div>
               <div className="profile-header-info">
                 <span className="profile-name">{username || "Rajvardhan Patil"}</span>
-                <span className="profile-go">{t("go") || "Go"}</span>
+                <span className="profile-go">{t("Basic") || "Go"}</span>
               </div>
               <ChevronRight size={16} className="chevron-right-icon" />
             </div>

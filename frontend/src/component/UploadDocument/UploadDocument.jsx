@@ -80,6 +80,7 @@ const UploadDocument = () => {
 
             navigate("/viewer", {
               state: {
+                fileId: response.data.file_id,
                 uploadedFile: file,
                 ocrResult: response.data.extracted_text || "OCR text not available",
                 sometext:response.data.summarized_text || "Summarized text"
