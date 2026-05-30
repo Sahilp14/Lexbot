@@ -36,18 +36,7 @@ This project leverages advanced AI models to **summarize, simplify, and analyze 
 - Extending summarization to **regional Indian languages**.
 - Ensuring accessibility for **non-English legal documents**.
   
-## Installation & Usage
-```bash
-# Clone the repository
-git clone https://github.com/your-repo/legal-summarizer.git
-cd legal-summarizer
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the model
-python summarize.py --input legal_document.pdf --output summary.txt
-```
 
 ## Future Enhancements
 - **Integration with Spacy for advanced legal NLP.**
