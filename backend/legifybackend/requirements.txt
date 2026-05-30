@@ -121,4 +121,5 @@ zipp==3.21.0
 zstandard==0.23.0
 gunicorn
 whitenoise
+dj-database-url
 psycopg2-binary
