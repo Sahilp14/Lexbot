@@ -108,15 +108,17 @@ WSGI_APPLICATION = "legifybackend.wsgi.application"
 # }
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "lexbotdb",
-        "USER": "lexbotdb_user",
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": "dpg-d8d9fcv7f7vs73bva2n0-a",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
