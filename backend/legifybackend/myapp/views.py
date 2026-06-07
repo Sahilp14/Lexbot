@@ -273,7 +273,7 @@ def cleanup_files(request):
     return JsonResponse({"message": "Files cleaned successfully"})
 
 
-# ================= GEMINI CHAT =================
+# ================= CHAT =================
 
 import os
 import re
