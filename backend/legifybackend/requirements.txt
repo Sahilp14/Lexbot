@@ -123,3 +123,5 @@ gunicorn
 whitenoise
 dj-database-url
 psycopg2-binary
+
+#web: gunicorn lexbot.wsgi:application
