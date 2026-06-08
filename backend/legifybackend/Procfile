@@ -1,1 +1,1 @@
-web: gunicorn legifybackend.wsgi:application
+web: gunicorn lexbot.wsgi:application
